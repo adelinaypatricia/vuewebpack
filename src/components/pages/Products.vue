@@ -251,7 +251,7 @@ export default {
       const vm = this
       const formData = new FormData()
       formData.append('file-to-upload', uploadedFile)
-      const url = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/admin/product/upload`
+      const url = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/admin/upload`
       this.$http.post(url, formData, {
         headers: {
           "Content-Type": "multipart/form-data"
