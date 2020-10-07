@@ -258,6 +258,11 @@ export default {
         }
       }).then((response) => {
         console.log(response.data)
+        if (response.data.success) {
+          // vm.tempProduct.imageUrl = response.data.imageUrl
+          // console.log(vm.tempProduct)
+          vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl)
+        }
       });
     }
   },
