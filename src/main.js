@@ -7,10 +7,12 @@ import App from './App'
 import router from './router'
 import Loading from 'vue-loading-overlay'
 import 'vue-loading-overlay/dist/vue-loading.min.js'
+import 'vue-loading-overlay/dist/vue-loading.css'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'bootstrap'
+import './bus'
 
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)

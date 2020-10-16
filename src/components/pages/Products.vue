@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 <template>
   <div>
+        <loading :active.sync="isLoading"></loading>
     <div class="text-right mt-4">
       <button class="btn btn-primary" @click="openModal(true)">new product</button>
     </div>
@@ -36,6 +37,27 @@
         </tr>
       </tbody>
     </table>
+
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li class="page-item" :class="{'diabled': !pagination.has_pre }">
+          <a class="page-link" href="#" aria-label="Previous"
+            @click.prevent="getProducts(pagination.current_page - 1)">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li class="page-item" v-for="page in pagination.total_pages" :key="page"
+          :class="{'active': pagination.current_page === page}">
+          <a class="page-link" href="#" @click.prevent="getProducts(page)">{{ page }}</a></li>
+        <li class="page-item" :class="{'diabled': !pagination.has_next }">
+          <a class="page-link" href="#" aria-label="Next"
+            @click.prevent="getProducts(pagination.current_page + 1)">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
         <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
   aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
@@ -59,7 +81,7 @@
             </div>
             <div class="form-group">
               <label for="customFile">或 上傳圖片
-                <i class="fas fa-spinner fa-spin"></i>
+                <i class="fas fa-spinner fa-spin" v-if="status.fileUploading"></i>
               </label>
               <input type="file" id="customFile" class="form-control"
                 ref="files" @change="uploadFile">
@@ -176,18 +198,26 @@ export default {
   data () {
     return {
       products: [],
+      pagination: {},
       tempProduct: {},
-      isNew: false
+      isNew: false,
+      isLoading: false,
+      status: {
+        fileUploading: false
+      }
     }
   },
   methods: {
-    getProducts () {
-      const api = 'https://vue-course-api.hexschool.io/api/murvet/products'
+    getProducts (page = 1) {
+      const api = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/products?page=${page}`
       console.log(api)
       const vm = this
+      vm.lsLoading = true
       this.$http.get(api).then((response) => {
         console.log(response.data)
+        vm.isLoading = false
         vm.products = response.data.products
+        vm.pagination = response.data.pagination
       })
     },
     openModal (isNew, item) {
@@ -252,16 +282,20 @@ export default {
       const formData = new FormData()
       formData.append('file-to-upload', uploadedFile)
       const url = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/admin/upload`
+      vm.status.fileUploading = true
       this.$http.post(url, formData, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
       }).then((response) => {
         console.log(response.data)
+        vm.status.fileUploading = false
         if (response.data.success) {
           // vm.tempProduct.imageUrl = response.data.imageUrl
           // console.log(vm.tempProduct)
           vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl)
+        } else {
+          this.$bus.$emit('message:push', response.data.imageUrl, 'danger')
         }
       });
     }
